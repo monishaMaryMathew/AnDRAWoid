@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.CanvasActivity">
+    <item
+
+        android:id="@+id/action_erase"
+
+        android:icon="@drawable/ic_crop_7_5_black_24dp"
+
+        android:title="@string/action_erase"
+
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/action_delete"
+
+        android:icon="@drawable/ic_close_black_24dp"
+
+        android:title="@string/action_delete"
+
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/action_undo"
+
+        android:icon="@drawable/ic_refresh_black_24dp"
+
+        android:title="@string/action_undo"
+
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/action_brush"
+
+        android:icon="@drawable/ic_brush_black_24dp"
+
+        android:title="@string/action_brush"
+
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/action_color"
+
+        android:icon="@drawable/ic_colorize_black_24dp"
+
+        android:title="@string/action_color"
+
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/action_save"
+
+        android:icon="@drawable/ic_done_black_24dp"
+
+        android:title="@string/action_save"
+
+        app:showAsAction="always" />
+</menu>
