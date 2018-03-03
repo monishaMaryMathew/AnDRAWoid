@@ -4,6 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.CanvasActivity">
     <item
+        android:id="@+id/action_load_image"
+        android:icon="@drawable/ic_insert_photo_black_24dp"
+        android:title="load image"
+        app:showAsAction="always"/>
+
+    <item
 
         android:id="@+id/action_erase"
 

@@ -1,10 +1,13 @@
 package com.monisha.samples.andrawoid.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,9 +27,12 @@ import com.monisha.samples.andrawoid.fragments.BrushSizeDialogFragment;
 import com.monisha.samples.andrawoid.fragments.ColorPickerDialogFragment;
 import com.monisha.samples.andrawoid.views.CustomView;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /*
@@ -45,7 +51,8 @@ public class CanvasActivity extends AppCompatActivity
 
     private String LOG_CAT = "Logger";
 
-    private final static int REQUEST_WRITE_STORAGE = 111;
+    private final static int REQUEST_CODE_WRITE_STORAGE = 111;
+    private final static int REQUEST_CODE_READ_GALLERY = 222;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,9 @@ public class CanvasActivity extends AppCompatActivity
 
     private void handleDrawingIconTouched(int itemId) {
         switch (itemId) {
+            case R.id.action_load_image:
+                selectImageToEdit();
+                break;
             case R.id.action_delete:
                 customView.delete(this);
                 break;
@@ -89,6 +99,21 @@ public class CanvasActivity extends AppCompatActivity
             default:
                 break;
         }
+    }
+
+    private void selectImageToEdit(){
+        if(isReadPermissionGiven()) {
+            Intent intentToGallery = new Intent();
+            intentToGallery.setType("image/*");
+            intentToGallery.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intentToGallery, REQUEST_CODE_READ_GALLERY);
+        }else {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_READ_GALLERY);
+        }
+    }
+
+    private boolean isReadPermissionGiven(){
+        return (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
     }
 
     private void createColorSelectorDialog() {
@@ -157,7 +182,7 @@ public class CanvasActivity extends AppCompatActivity
             startActivity(Intent.createChooser(shareIntent, "Share image"));
         }
             else {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_STORAGE);
         }
 
     }
@@ -188,13 +213,46 @@ public class CanvasActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_WRITE_STORAGE:
+            case REQUEST_CODE_WRITE_STORAGE:
                 if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                     shareDrawing();
                 } else {
                     Toast.makeText(this, "To use the save feature, the app needs permission to access the storage.", Toast.LENGTH_LONG).show();
                 }
                 break;
+            case REQUEST_CODE_READ_GALLERY:
+                if(grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED) {
+                    selectImageToEdit();
+                } else {
+                    Toast.makeText(this, "To use the edit image feature, the app needs permission to access the storage.", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK) {
+            if(data!=null) {
+                switch (requestCode) {
+                    case REQUEST_CODE_READ_GALLERY:
+                        try {
+
+                            InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
+                            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                            Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream);
+                            BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
+                            customView.setBackground(bitmapDrawable);
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                }
+            }else {
+                Toast.makeText(this, "Oops something went wrong", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
